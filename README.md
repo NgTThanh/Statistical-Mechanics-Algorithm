@@ -1,7 +1,7 @@
 # Statistical-Mechanics-Algorithm
 This repository is produced as solution for exercises of the course "Statistical Mechanics: Algorithms and Computations" on Coursera, which go through simple ideas in statistical mechanics and Monte Carlo simulation.
 
-These are branches corresponding to Lectures in the course. My assignments for the excercise are specified in each folder. The course goes through:
+The course goes through:
 
 Lecture 1: Introduction to Monte Carlo algorithms
 
@@ -24,3 +24,5 @@ Lecture 9: Dynamical Monte Carlo and the Faster-than-the-Clock approach
 Lecture 10: The Alpha and the Omega of Monte Carlo
 
 The textbook for the course is Krauth, W. (2006). Statistical mechanics: algorithms and computations (Vol. 13). OUP Oxford.
+
+My assignments were prepared as solutions for exercises in the course.
