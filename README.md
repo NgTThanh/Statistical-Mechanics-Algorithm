@@ -1,7 +1,7 @@
 # Statistical-Mechanics-Algorithm
 This repository is produced as solution for exercises of the course "Statistical Mechanics: Algorithms and Computations" on Coursera, which go through simple ideas in statistical mechanics and Monte Carlo simulation.
 
-These are branches corresponding to Lectures in the course. My assignments for the excercise is specified in each folder. The course go through:
+These are branches corresponding to Lectures in the course. My assignments for the excercise are specified in each folder. The course goes through:
 
 Lecture 1: Introduction to Monte Carlo algorithms
 
