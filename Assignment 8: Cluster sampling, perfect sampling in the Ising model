@@ -1,0 +1,273 @@
+import random, math, pylab, os
+
+def energy(S, N, nbr):
+    E = 0.0
+    for k in range(N):
+        E -=  S[k] * sum(S[nn] for nn in nbr[k])
+    return 0.5 * E
+
+def x_y(k, L):
+    y = k // L
+    x = k - y * L
+    return x, y
+
+L = 128
+N = L * L
+nbr = {i : ((i // L) * L + (i + 1) % L, (i + L) % N,
+            (i // L) * L + (i - 1) % L, (i - L) % N) \
+                                    for i in range(N)}
+
+filename = 'data_local_'+ str(L) + '_' + str(T) + '.txt'
+if os.path.isfile(filename):
+    f = open(filename, 'r')
+    S = []
+    for line in f:
+        S.append(int(line))
+    f.close()
+    print ('Starting from file', filename)
+else:
+    S = [random.choice([1, -1]) for k in range(N)]
+    print ('Starting from a random configuration')
+
+T = 1.0
+S = [random.choice([1, -1]) for k in range(N)]
+nsteps = N * 10000
+beta = 1.0 / T
+Energy = energy(S, N, nbr)
+E = []
+for step in range(nsteps):
+    k = random.randint(0, N - 1)
+    delta_E = 2.0 * S[k] * sum(S[nn] for nn in nbr[k])
+    if random.uniform(0.0, 1.0) < math.exp(-beta * delta_E):
+        S[k] *= -1
+        Energy += delta_E
+    E.append(Energy)
+print ('mean energy per spin:', sum(E) / float(len(E) * N))
+
+
+    
+f = open(filename, 'w')
+for a in S:
+   f.write(str(a) + '\n')
+f.close()
+
+conf = [[0 for x in range(L)] for y in range(L)]
+for k in range(N):
+    x, y = x_y(k, L)
+    conf[x][y] = S[k]
+
+pylab.imshow(conf, extent=[0, L, 0, L], interpolation='nearest')
+pylab.set_cmap('hot')
+pylab.title('Local_'+ str(T) + '_' + str(L))
+pylab.savefig('plot_A2_local_'+ str(T) + '_' + str(L)+ '.png')
+pylab.show()
+
+def energy(S, N, nbr):
+    E = 0.0
+    for k in range(N):
+        E -=  S[k] * sum(S[nn] for nn in nbr[k])
+    return 0.5 * E
+
+
+for i in range(5):
+  L=2**(i+1)
+  N = L * L
+  nbr = {i : ((i // L) * L + (i + 1) % L, (i + L) % N,
+              (i // L) * L + (i - 1) % L, (i - L) % N)
+                                      for i in range(N)}
+
+  T = 2.27
+  p  = 1.0 - math.exp(-2.0 / T)
+  nsteps = 100000
+  S = [random.choice([1, -1]) for k in range(N)]
+  E = [energy(S, N, nbr)]
+
+  filename = 'data_local_'+ str(L) + '_' + str(T) + '.txt'
+  if os.path.isfile(filename):
+      f = open(filename, 'r')
+      S = []
+      for line in f:
+          S.append(int(line))
+      f.close()
+      print ('Starting from file', filename)
+  else:
+      S = [random.choice([1, -1]) for k in range(N)]
+      print ('Starting from a random configuration')
+    
+  for step in range(nsteps):
+      k = random.randint(0, N - 1)
+      Pocket, Cluster = [k], [k]
+      while Pocket != []:
+          j = random.choice(Pocket)
+          for l in nbr[j]:
+              if S[l] == S[j] and l not in Cluster \
+                    and random.uniform(0.0, 1.0) < p:
+                  Pocket.append(l)
+                  Cluster.append(l)
+          Pocket.remove(j)
+      for j in Cluster:
+          S[j] *= -1
+      E.append(energy(S, N, nbr))
+  print ('mean energy per spin:', sum(E) / float(len(E) * N))
+
+  f = open(filename, 'w')
+  for a in S:
+    f.write(str(a) + '\n')
+  f.close()
+
+  E_mean = sum(E) / len(E)
+  E2_mean = sum(a ** 2 for a in E) / len(E)
+  cv = (E2_mean - E_mean ** 2 ) / N / T ** 2
+  print(E_mean)
+  print(E2_mean)
+  print(cv)
+  print(L)
+
+L = 6
+N = L * L
+nbr = {i : ((i // L) * L + (i + 1) % L, (i + L) % N,
+            (i // L) * L + (i - 1) % L, (i - L) % N) \
+                                    for i in range(N)}
+nsteps = 10000 * N
+T = 2.0
+beta = 1.0 / T
+S = [random.choice([-1, 1]) for site in range(N)]
+E = -0.5 * sum(S[k] * sum(S[nn] for nn in nbr[k]) \
+                                for k in range(N))
+Energies = []
+for step in range(nsteps):
+    k = random.randint(0, N - 1)
+    Upsilon = random.uniform(0.0, 1.0)
+    h = sum(S[nn] for nn in nbr[k])
+    Sk_old = S[k]
+    S[k] = -1
+    if Upsilon < 1.0 / (1.0 + math.exp(-2.0 * beta * h)):
+        S[k] = 1
+    if S[k] != Sk_old:
+        E -= 2.0 * h * S[k]
+    Energies.append(E)
+print ('mean energy per spin:', sum(Energies) / float(len(Energies) * N))
+
+#The final configuration of 3 times runs for 100 iterations meets with 1 time run for 300 iterations. Moreover, the configuration contains almost small scale structure, which depict the short correlation length.
+#The final configuration of 3 times runs for 100 iterations meets with 1 time run for 300 iterations like previous work, but the pattern grow larger by longer correlation length.
+#As iterations increase from 10*N to 1000*N, the spin coalescent to clusters, strips and finally form a fully magnetized pattern.
+#At 10000*N iterations, after several runs, these are 0 runs, that show the shift of almost black to almost white
+At low temperature, the configuration turns to ferromagnetic state, where all the spin stays aligned after a timescale. When the configuration turns almost black, the value of e^{-\beta\Delta E} \approx 0e 
+−βΔE ≈0 lead to the rarity of almost black configuration shift to almost white configuration in 1 step.
+
+#The pocket give the available site that the cluster can be continued to construct.
+#The modified version give similar results with the given one. By the fact that, instead of random select sites, now we choose the bottom site of the pocket.
+
+def show_spins(S0, S1, L, label):
+    pylab.set_cmap('hot')
+    conf0 = [[0 for x in range(L)] for y in range(L)]
+    conf1 = [[0 for x in range(L)] for y in range(L)]
+    for k in range(N):
+        y = k // L
+        x = k - y * L
+        conf0[x][y] = S0[k]
+        conf1[x][y] = S1[k]
+    pylab.subplot(1, 2, 1)
+    pylab.imshow(conf0, extent=[0, L, 0, L], interpolation='nearest')
+    pylab.title('S0 ' + label)
+    pylab.subplot(1, 2, 2)
+    pylab.imshow(conf1, extent=[0, L, 0, L], interpolation='nearest')
+    pylab.title('S1 ' + label)
+    pylab.tight_layout()
+    pylab.show()
+    pylab.close()
+
+L = 32
+N = L * L
+nbr = {i : ((i // L) * L + (i + 1) % L, (i + L) % N,
+            (i // L) * L + (i - 1) % L, (i - L) % N) \
+                                    for i in range(N)}
+T = 3.0
+beta = 1.0 / T
+S0 = [1] * N
+S1 = [-1] * N
+step = 0
+while True:
+    step += 1
+    k = random.randint(0, N - 1)
+    Upsilon = random.uniform(0.0, 1.0)
+    h = sum(S0[nn] for nn in nbr[k])
+    S0[k] = -1
+    if Upsilon < 1.0 / (1.0 + math.exp(-2.0 * beta * h)):
+        S0[k] = 1
+    h = sum(S1[nn] for nn in nbr[k])
+    S1[k] = -1
+    if Upsilon < 1.0 / (1.0 + math.exp(-2.0 * beta * h)):
+        S1[k] = 1
+    show_spins(S0, S1, L, str(step))
+    if step==1:
+        pylab.savefig('plot'+str(step)+'.png')
+    if step % N == 0:
+        n_diff = sum(abs(S0[i] - S1[i]) for i in range(N))
+        if n_diff == 0:
+            t_coup = step / N
+            print ('coupling time:', t_coup)
+            pylab.savefig('plot'+str(step)+'.png')
+            break
+            
+def energy(S, N, nbr):
+    E = 0.0
+    for k in range(N):
+        E -=  S[k] * sum(S[nn] for nn in nbr[k])
+    return 0.5 * E
+
+
+for i in range(5):
+  L=2**(i+1)
+  N = L * L
+  nbr = {i : ((i // L) * L + (i + 1) % L, (i + L) % N,
+              (i // L) * L + (i - 1) % L, (i - L) % N)
+                                      for i in range(N)}
+
+  T = 2.27
+  p  = 1.0 - math.exp(-2.0 / T)
+  nsteps = 100000
+  S = [random.choice([1, -1]) for k in range(N)]
+  E = [energy(S, N, nbr)]
+
+  filename = 'data_local_'+ str(L) + '_' + str(T) + '.txt'
+  if os.path.isfile(filename):
+      f = open(filename, 'r')
+      S = []
+      for line in f:
+          S.append(int(line))
+      f.close()
+      print ('Starting from file', filename)
+  else:
+      S = [random.choice([1, -1]) for k in range(N)]
+      print ('Starting from a random configuration')
+    
+  for step in range(nsteps):
+      k = random.randint(0, N - 1)
+      Pocket, Cluster = [k], [k]
+      while Pocket != []:
+          j = Pocket.pop(-1)
+          for l in nbr[j]:
+              if S[l] == S[j] and l not in Cluster \
+                    and random.uniform(0.0, 1.0) < p:
+                  Pocket.append(l)
+                  Cluster.append(l)
+      for j in Cluster:
+          S[j] *= -1
+      E.append(energy(S, N, nbr))
+  print ('mean energy per spin:', sum(E) / float(len(E) * N))
+
+  f = open(filename, 'w')
+  for a in S:
+    f.write(str(a) + '\n')
+  f.close()
+
+  E_mean = sum(E) / len(E)
+  E2_mean = sum(a ** 2 for a in E) / len(E)
+  cv = (E2_mean - E_mean ** 2 ) / N / T ** 2
+  print(E_mean)
+  print(E2_mean)
+  print(cv)
+  print(L)
+
+#Within coupling time, the figure evolve diversely at initial time, while at the nearly approach coupling time, these configurations make some similar flips toward almost final moves.
